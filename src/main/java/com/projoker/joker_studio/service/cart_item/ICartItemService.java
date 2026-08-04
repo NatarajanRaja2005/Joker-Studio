@@ -8,4 +8,5 @@ public interface ICartItemService {
     CartItem updateCartItem(Long productId,int quantity,Long cartId);
     void deleteCartItemByProductId(Long productId,Long cartId);
     CartItem getCartItemByProductIdAndCartId(Long productId,Long cartId);
+    Boolean checkInStock(Long productId,int quantity);
 }

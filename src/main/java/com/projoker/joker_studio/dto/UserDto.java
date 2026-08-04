@@ -1,6 +1,7 @@
 package com.projoker.joker_studio.dto;
 
 import com.projoker.joker_studio.model.Cart;
+import com.projoker.joker_studio.model.OrderAddress;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
@@ -12,4 +13,5 @@ public class UserDto {
     private String lastName;
     private Long phone;
     private String email;
+    private OrderAddress address;
 }
