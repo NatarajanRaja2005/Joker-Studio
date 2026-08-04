@@ -15,4 +15,5 @@ public interface ICartService {
     Cart getCartById(Long cartId);
     void updatePriceOfCart(Long cartId);
     void clearCart(Long cartId);
+    Cart getCartByUserId(Long userId);
 }

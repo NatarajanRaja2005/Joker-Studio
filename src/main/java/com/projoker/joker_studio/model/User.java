@@ -20,6 +20,9 @@ public class User {
     private String email;
     private String password;
 
+    @Embedded
+    private OrderAddress Address;
+
     @OneToOne(mappedBy = "user", cascade=CascadeType.ALL,orphanRemoval = true)
     private Cart cart;
 

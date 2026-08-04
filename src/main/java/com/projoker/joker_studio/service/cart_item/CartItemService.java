@@ -2,6 +2,7 @@ package com.projoker.joker_studio.service.cart_item;
 
 import com.projoker.joker_studio.exception.AlreadyExistException;
 import com.projoker.joker_studio.exception.ItemNotExistException;
+import com.projoker.joker_studio.exception.OutOfStockException;
 import com.projoker.joker_studio.model.Cart;
 import com.projoker.joker_studio.model.CartItem;
 import com.projoker.joker_studio.model.Product;
@@ -29,6 +30,10 @@ public class CartItemService implements ICartItemService{
         }
         //If product not found it will throw exception on product service method
         Product product=productService.getProductById(productId);
+        boolean checkStock=checkInStock(productId,quantity);
+        if(!checkStock){
+            throw new OutOfStockException("The item has only "+product.getInventory()+" left.");
+        }
         item=new CartItem();
         item.setProduct(product);
         item.setUnitPrice(product.getPrice());
@@ -47,6 +52,10 @@ public class CartItemService implements ICartItemService{
         }
         //Caution: After this update you should have to perform updatation og total amount
         //You done that on your controller because if you done here may create an loop
+        boolean checkStock=checkInStock(productId,quantity);
+        if(!checkStock){
+            throw new OutOfStockException("There is no enough quantity.");
+        }
         item.setQuantity(quantity);
         item.UpdateTotalPrice();
         return cartItemRepository.save(item);
@@ -74,5 +83,12 @@ public class CartItemService implements ICartItemService{
         }
         CartItem item=cartItemRepository.findByCartAndProduct(cart.get(),product);
         return item;
+    }
+
+    @Override
+    public Boolean checkInStock(Long productId, int quantity) {
+        Product product=productService.getProductById(productId);
+
+        return product.getInventory()>=quantity;
     }
 }

@@ -7,6 +7,7 @@ import com.projoker.joker_studio.model.CartItem;
 import com.projoker.joker_studio.model.Product;
 import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.repository.CartRepository;
+import com.projoker.joker_studio.repository.ProductRepository;
 import com.projoker.joker_studio.repository.UserRepository;
 import com.projoker.joker_studio.service.cart_item.ICartItemService;
 import com.projoker.joker_studio.service.product.IProductService;
@@ -86,6 +87,12 @@ public class CartService implements ICartService{
         cart.setTotalAmount(BigDecimal.ZERO);
         cart.getItemList().clear();
         cartRepository.save(cart);
+    }
+
+    @Override
+    public Cart getCartByUserId(Long userId) {
+        Cart cart=cartRepository.findByUserId(userId);
+        return cart;
     }
 
 }

@@ -4,6 +4,7 @@ import com.projoker.joker_studio.dto.UserDto;
 import com.projoker.joker_studio.exception.AlreadyExistException;
 import com.projoker.joker_studio.exception.ItemNotExistException;
 import com.projoker.joker_studio.model.Cart;
+import com.projoker.joker_studio.model.OrderAddress;
 import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.repository.UserRepository;
 import com.projoker.joker_studio.request.AddUserRequest;
@@ -30,6 +31,9 @@ public class UserService implements IUserService{
         newUser.setEmail(user.getEmail());
         newUser.setPhone(user.getPhone());
         newUser.setPassword(user.getPassword());
+
+        newUser.setAddress(user.getAddress());
+        //System.out.println(user.getAddress().getCity());
         return userRepository.save(newUser);
     }
 
@@ -43,7 +47,7 @@ public class UserService implements IUserService{
         existUser.setLastName(user.getLastName());
         existUser.setEmail(user.getEmail());
         existUser.setPhone(user.getPhone());
-
+        existUser.setAddress(user.getAddress());
         userRepository.save(existUser);
         return existUser;
     }
