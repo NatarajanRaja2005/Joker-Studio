@@ -1,0 +1,41 @@
+package com.projoker.joker_studio.model;
+
+import com.projoker.joker_studio.enums.EventName;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.AnyDiscriminatorImplicitValues;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Date;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Event {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private EventName eventName;
+    private LocalDate fromDate;
+    private LocalDate toDate;
+    private LocalTime fromTime;
+    private LocalTime toTime;
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "agenda_id")
+    private Agenda agenda;
+
+    private BigDecimal advance;
+}
