@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-//@Service
+@Service
 @RequiredArgsConstructor
 public class AgendaService implements IAgendaService{
     private final AgendaRepository agendaRepository;
@@ -37,9 +37,11 @@ public class AgendaService implements IAgendaService{
     @Override
     public void updateTotalPrice(Long agendaId) {
         Agenda agenda=getAgendaById(agendaId);
-        BigDecimal price=new BigDecimal(0);
+        BigDecimal price=BigDecimal.ZERO;
         for(AgendaDetails details: agenda.getAccessoriesSet()){
-            price.add(details.getPrice());
+            if(details.getPrice()!=null) {
+                price = price.add(details.getPrice());
+            }
         }
         agenda.setTotalPrice(price);
         agendaRepository.save(agenda);
@@ -70,5 +72,6 @@ public class AgendaService implements IAgendaService{
     public void updateAgendaDetails(Long agendaId, Long agendaDetailsId, int quantity){
         Agenda agenda=getAgendaById(agendaId);
         agendaDetailsService.updateAgendaDetails(agendaDetailsId,quantity);
+        updateTotalPrice(agendaId);
     }
 }
