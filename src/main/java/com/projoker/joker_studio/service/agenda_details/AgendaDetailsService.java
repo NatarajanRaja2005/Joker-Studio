@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Service
+@Service
 @RequiredArgsConstructor
 public class AgendaDetailsService implements IAgendaDetailsService{
     private final AgendaDetailsRepository agendaDetailsRepository;
@@ -30,7 +30,7 @@ public class AgendaDetailsService implements IAgendaDetailsService{
         if(accessories==null){
             throw new ItemNotExistException("Accessories not found!");
         }
-        EventName eventName=EventName.valueOf(event);
+        EventName eventName=EventName.valueOf(event.toUpperCase());
         AgendaDetails agendaDetails=new AgendaDetails();
         agendaDetails.setEventAccessories(accessories);
         agendaDetails.setQuantity(quantity);

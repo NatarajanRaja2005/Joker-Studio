@@ -14,6 +14,6 @@ public interface IAgendaService {
     void deleteAgendaById(Long id);
 
     List<AgendaDetails> getAllAgendaDetails(Long agendaId);
-
+    List<Agenda> getAllAgenda();
     void updateAgendaDetails(Long agendaId, Long agendaDetailsId, int quantity);
 }
