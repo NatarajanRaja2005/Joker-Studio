@@ -69,6 +69,11 @@ public class AgendaService implements IAgendaService{
     }
 
     @Override
+    public List<Agenda> getAllAgenda() {
+        return agendaRepository.findAll();
+    }
+
+    @Override
     public void updateAgendaDetails(Long agendaId, Long agendaDetailsId, int quantity){
         Agenda agenda=getAgendaById(agendaId);
         agendaDetailsService.updateAgendaDetails(agendaDetailsId,quantity);

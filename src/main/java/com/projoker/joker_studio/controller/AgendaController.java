@@ -10,12 +10,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/agenda")
 public class AgendaController {
     private final IAgendaService agendaService;
     private final ModelMapper modelMapper;
+
+    @GetMapping("/get/all/agenda")
+    public ResponseEntity<ApiResponse> getAllAgenda(){
+        try {
+            List<Agenda> agendas=agendaService.getAllAgenda();
+            List<AgendaDto> agendaDto=agendas.stream().map(item-> modelMapper.map(item, AgendaDto.class)).toList();
+            return ResponseEntity.ok(new ApiResponse("Agenda Retrived Successfully!",agendaDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Retrival of agenda failed.",e.getMessage()));
+        }
+    }
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createAgenda(){

@@ -54,9 +54,10 @@ public class UserService implements IUserService{
 
     @Override
     public User getUser(Long userId) {
+        //System.out.println("Get called with: "+userId);
         Optional<User> existUser=userRepository.findById(userId);
         if(existUser.isEmpty()){
-            throw new ItemNotExistException("User Not Exists!");
+            throw new ItemNotExistException("User Not Exists: "+userId);
         }
         return existUser.get();
     }

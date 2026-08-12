@@ -1,6 +1,7 @@
 package com.projoker.joker_studio.model;
 
 import com.projoker.joker_studio.enums.EventName;
+import com.projoker.joker_studio.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Enumerated(EnumType.STRING)
     private EventName eventName;
     private LocalDate fromDate;
     private LocalDate toDate;
@@ -36,6 +38,9 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "agenda_id")
     private Agenda agenda;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus eventStatus;
 
     private BigDecimal advance;
 }
