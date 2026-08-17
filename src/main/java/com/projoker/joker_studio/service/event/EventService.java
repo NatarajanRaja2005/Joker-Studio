@@ -13,6 +13,7 @@ import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.repository.EventRepository;
 import com.projoker.joker_studio.request.AddEventRequest;
 import com.projoker.joker_studio.service.agenda.IAgendaService;
+import com.projoker.joker_studio.service.notification.INotificationService;
 import com.projoker.joker_studio.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -32,6 +33,7 @@ public class EventService implements IEventService{
     private final IAgendaService agendaService;
     private final IUserService userService;
     private final ModelMapper modelMapper;
+    private final INotificationService notificationService;
 
     @Override
     public Event BookEvent(AddEventRequest request) {
@@ -44,7 +46,7 @@ public class EventService implements IEventService{
         if(pendingEventsForUser.size()>=3){
             throw new MoreEventExistsException("More non booked events are exists. Kindly wait for response.");
         }
-
+        notificationService.notify(event.getUser(),eventMessage(event)+"\nThis event was created successfully.");
         return eventRepository.save(event);
     }
 
@@ -82,6 +84,7 @@ public class EventService implements IEventService{
         Event event=getEventByIdForAdmin(eventId);
         event.setEventStatus(EventStatus.CANCELLED);
         eventRepository.save(event);
+        notificationService.notify(event.getUser(),eventMessage(event)+"\nThis Event was cancelled Successfully.");
         return "Event Cancelled Successfully!";
     }
 
@@ -89,6 +92,7 @@ public class EventService implements IEventService{
     public Event updateEvent(Long eventId, AddEventRequest request) {
         Event event=getEventByIdForAdmin(eventId);
         event=settingEvent(request,event);
+        notificationService.notify(event.getUser(),eventMessage(event)+"\nThe event was updated Successfully.");
         return eventRepository.save(event);
     }
 
@@ -219,6 +223,19 @@ public class EventService implements IEventService{
         Event event=getEventByIdForAdmin(eventId);
         EventStatus status2=EventStatus.valueOf(status.toUpperCase());
         event.setEventStatus(status2);
+
+        notificationService.notify(event.getUser(),eventMessage(event)+"\nKindly check the updated Status.");
         return eventRepository.save(event);
+    }
+
+    private String eventMessage(Event event){
+        final String message="EventId: "+event.getId()+
+                "\n\nEventName: "+ event.getEventName()+
+                "\n\nEventStatus: "+event.getEventStatus()+
+                "\nEvent Description: "+event.getDescription()+
+                "\n\nFromDate: "+event.getFromDate()+
+                "\n\nToDate: "+event.getToDate()+
+                "\n\nAdvance Amount: "+event.getAdvance()+"\n";
+        return message;
     }
 }
