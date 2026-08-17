@@ -19,7 +19,8 @@ public class User {
     private Long phone;
     private String email;
     private String password;
-
+    private boolean emailVerification;
+    private boolean deactivate;
     @Embedded
     private OrderAddress Address;
 
