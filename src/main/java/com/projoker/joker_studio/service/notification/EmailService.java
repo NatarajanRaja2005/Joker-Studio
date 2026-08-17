@@ -1,5 +1,6 @@
 package com.projoker.joker_studio.service.notification;
 
+import com.projoker.joker_studio.model.NotifyMessage;
 import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.response.ApiResponse;
 import jakarta.mail.MessagingException;
@@ -19,7 +20,7 @@ public class EmailService implements INotificationService{
     private final JavaMailSender mailSender;
 
     @Override
-    public void notify(User user, String message) {
+    public void notify(User user, NotifyMessage message) {
         try {
             MimeMessage mailMessage=mailSender.createMimeMessage();
             MimeMessageHelper helper=new MimeMessageHelper(mailMessage,false);
@@ -27,10 +28,9 @@ public class EmailService implements INotificationService{
             helper.setTo(user.getEmail());
 
             helper.setSubject(
-                    user.getFirstName() +
-                            ": Status of Your Booking was Changed."
+                    "Dear "+user.getFirstName() +", "+message.getSubject()
             );
-            final String formatMessage=message+"\n\n\n Thank you for choosing JokerStudio " +
+            final String formatMessage=message.getMessage()+"\n\n\n Thank you for choosing JokerStudio " +
                     "for the service you needed."+"\n\nFor More info: joker@gmail.com";
             helper.setText(formatMessage);
 
