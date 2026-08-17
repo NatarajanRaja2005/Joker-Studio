@@ -9,6 +9,7 @@ import com.projoker.joker_studio.exception.ItemNotExistException;
 import com.projoker.joker_studio.exception.MoreEventExistsException;
 import com.projoker.joker_studio.model.Agenda;
 import com.projoker.joker_studio.model.Event;
+import com.projoker.joker_studio.model.NotifyMessage;
 import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.repository.EventRepository;
 import com.projoker.joker_studio.request.AddEventRequest;
@@ -46,8 +47,9 @@ public class EventService implements IEventService{
         if(pendingEventsForUser.size()>=3){
             throw new MoreEventExistsException("More non booked events are exists. Kindly wait for response.");
         }
-        notificationService.notify(event.getUser(),eventMessage(event)+"\nThis event was created successfully.");
-        return eventRepository.save(event);
+        eventRepository.save(event);
+        notificationService.notify(event.getUser(),new NotifyMessage("Event Booked Successfully.",eventMessage(event)+"\nThis event was created successfully."));
+        return event;
     }
 
     private Event settingEvent(AddEventRequest request,Event event){
@@ -84,7 +86,7 @@ public class EventService implements IEventService{
         Event event=getEventByIdForAdmin(eventId);
         event.setEventStatus(EventStatus.CANCELLED);
         eventRepository.save(event);
-        notificationService.notify(event.getUser(),eventMessage(event)+"\nThis Event was cancelled Successfully.");
+        notificationService.notify(event.getUser(),new NotifyMessage("Event Cancelled Successfully.",eventMessage(event)+"\nThis event was cancelled successfully."));
         return "Event Cancelled Successfully!";
     }
 
@@ -92,7 +94,7 @@ public class EventService implements IEventService{
     public Event updateEvent(Long eventId, AddEventRequest request) {
         Event event=getEventByIdForAdmin(eventId);
         event=settingEvent(request,event);
-        notificationService.notify(event.getUser(),eventMessage(event)+"\nThe event was updated Successfully.");
+        notificationService.notify(event.getUser(),new NotifyMessage("Event updated Successfully.",eventMessage(event)+"\nThis event was updated successfully."));
         return eventRepository.save(event);
     }
 
@@ -224,7 +226,7 @@ public class EventService implements IEventService{
         EventStatus status2=EventStatus.valueOf(status.toUpperCase());
         event.setEventStatus(status2);
 
-        notificationService.notify(event.getUser(),eventMessage(event)+"\nKindly check the updated Status.");
+        notificationService.notify(event.getUser(),new NotifyMessage("Important Update... Status was Changed.",eventMessage(event)+"\nThis event was Changed successfully. Kindly verify It."));
         return eventRepository.save(event);
     }
 

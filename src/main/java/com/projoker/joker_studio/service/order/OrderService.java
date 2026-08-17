@@ -7,6 +7,7 @@ import com.projoker.joker_studio.model.*;
 import com.projoker.joker_studio.repository.OrderRepository;
 import com.projoker.joker_studio.repository.ProductRepository;
 import com.projoker.joker_studio.service.cart.ICartService;
+import com.projoker.joker_studio.service.notification.INotificationService;
 import com.projoker.joker_studio.service.order_details.IOrderDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class OrderService implements IOrderService{
     public final ProductRepository productRepository;
     private final ICartService cartService;
     private final IOrderDetailService orderDetailService;
+    private final INotificationService notificationService;
 
     @Override
     public Order orderProductsInCart(Long cartId) {
@@ -47,7 +49,9 @@ public class OrderService implements IOrderService{
         order.setOrderAmount(cart.getTotalAmount());
         order.setOrderDateTime(LocalDateTime.now());
         cartService.clearCart(cartId);
-        return orderRepository.save(order);
+        orderRepository.save(order);
+        notificationService.notify(order.getUser(),new NotifyMessage("Order was created Successfully.",orderMessage(order)+"\n\nOrder created Successfully"));
+        return order;
     }
 
     @Override
@@ -66,6 +70,7 @@ public class OrderService implements IOrderService{
             //Here recreating cart for deleting order
             cartService.addItemsToCart(order.getUser().getId(),product.getId(),od.getQuantity());
         }
+        notificationService.notify(order.getUser(),new NotifyMessage("Order was deleted Successfully.",orderMessage(order)+"\n\nOrder deleted Successfully"));
         orderRepository.delete(order);
     }
 
@@ -83,7 +88,10 @@ public class OrderService implements IOrderService{
         newAddress.setStreetName(address.getStreetName());
         order.setOrderAddress(newAddress);
         order.setOrderDateTime(LocalDateTime.now());
-        return orderRepository.save(order);
+        orderRepository.save(order);
+        notificationService.notify(order.getUser(),new NotifyMessage("Order was updated Successfully.",orderMessage(order)+"\n\nOrder updated Successfully"));
+
+        return order;
     }
 
     @Override
@@ -112,6 +120,7 @@ public class OrderService implements IOrderService{
     public void updateOrderStatus(Long orderId, String status) {
         Order order=getOrderById(orderId);
         order.setOrderStatus(OrderStatus.valueOf(status.toUpperCase()));
+        notificationService.notify(order.getUser(), new NotifyMessage("Order Status was Changed.",orderMessage(order)+"\n\nOrder Status updated Successfully, Kindly notice it."));
         orderRepository.save(order);
     }
 
@@ -122,5 +131,68 @@ public class OrderService implements IOrderService{
             throw new ItemNotExistException("Order item is not exists.");
         }
         return order.get();
+    }
+
+    private String orderMessage(Order order) {
+
+        StringBuilder message = new StringBuilder();
+
+        message.append("Order ID: ").append(order.getId())
+                .append("\n\n");
+        message.append("Order Date: ").append(order.getOrderDateTime())
+                .append("\n\n");
+        message.append("Order Status: ").append(order.getOrderStatus())
+                .append("\n\n");
+        message.append("Order Amount: ₹").append(order.getOrderAmount())
+                .append("\n\n");
+        message.append("Order Items:\n");
+
+        for (OrderDetails details : order.getOrderDetails()) {
+            message.append("\nProduct: ")
+                    .append(details.getProduct().getName());
+            message.append("\nQuantity: ")
+                    .append(details.getQuantity());
+            message.append("\nUnit Price: ₹")
+                    .append(details.getUnitPrice());
+            message.append("\nTotal Price: ₹")
+                    .append(details.getTotalPrice());
+            message.append("\n");
+        }
+
+        OrderAddress address = order.getOrderAddress();
+        if (address != null) {
+            message.append("\nDelivery Address:\n");
+            message.append("Door No: ")
+                    .append(address.getDoorNo())
+                    .append("\n");
+            message.append("Street: ")
+                    .append(address.getStreetName())
+                    .append("\n");
+            message.append("City: ")
+                    .append(address.getCity())
+                    .append("\n");
+            message.append("District: ")
+                    .append(address.getDistrict())
+                    .append("\n");
+            message.append("Taluk: ")
+                    .append(address.getTaluk())
+                    .append("\n");
+            message.append("State: ")
+                    .append(address.getState())
+                    .append("\n");
+            message.append("PIN Code: ")
+                    .append(address.getPinCode())
+                    .append("\n");
+            message.append("Landmark: ")
+                    .append(address.getLandMark())
+                    .append("\n");
+        }
+        if (order.getInstruction() != null && !order.getInstruction().isBlank()) {
+            message.append("\nInstruction: ")
+                    .append(order.getInstruction())
+                    .append("\n");
+        }
+
+        return message.toString();
     }
 }
