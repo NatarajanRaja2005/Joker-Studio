@@ -26,12 +26,22 @@ public class UserController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addUser(@RequestBody AddUserRequest user){
         try {
-            User newuser=userService.createUser(user);
-            cartService.createCart(newuser.getId());
-            UserDto userDto=modelMapper.map(newuser, UserDto.class);
-            return ResponseEntity.ok(new ApiResponse("User Created Successfully!",userDto));
+            userService.createUser(user);
+            return ResponseEntity.ok(new ApiResponse("Otp sent to User Successfully!",null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("User Creation Failed!",e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse> verifyEmail(@RequestParam String email,@RequestParam String otp){
+        try {
+            User newUser=userService.verifyUser(email,otp);
+            cartService.createCart(newUser.getId());
+            UserDto userDto=modelMapper.map(newUser, UserDto.class);
+            return ResponseEntity.ok(new ApiResponse("User verified Successfully",userDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Email verification Failed!",e.getMessage()));
         }
     }
 
@@ -77,4 +87,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("User retrival by email was failed!",e.getMessage()));
         }
     }
+
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId){
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.ok(new ApiResponse("User Deleted Successfully.",null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("User deletion Failed",null));
+        }
+    }
+
 }

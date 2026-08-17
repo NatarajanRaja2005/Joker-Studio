@@ -13,6 +13,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +40,26 @@ public class EmailService implements INotificationService{
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to send email", e);
         }
+    }
+
+    @Override
+    public void optVerification(String email, String message) {
+        try {
+            MimeMessage mimeMessage=mailSender.createMimeMessage();
+            MimeMessageHelper helper=new MimeMessageHelper(mimeMessage,false);
+            helper.setTo(email);
+            helper.setFrom("natarajanraja10140@gmail.com","Joker's Studio");
+
+            helper.setSubject(
+                    "Otp verification: Joker's Studio"
+            );
+            final String formatMessage="Verification for creating your account: \n"+message+" is an OTP for your email. Valid only with in 10 minutes.\n\n\n Thank you for choosing JokerStudio " +
+                    "for the service you needed."+"\n\nFor More info: joker@gmail.com";
+            helper.setText(formatMessage);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
+
     }
 }
