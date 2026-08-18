@@ -20,6 +20,7 @@ public class User {
     private String email;
     private String password;
     private boolean emailVerification;
+    private boolean phoneVerification;
     private boolean deactivate;
     @Embedded
     private OrderAddress Address;

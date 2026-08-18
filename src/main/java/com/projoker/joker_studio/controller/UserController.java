@@ -2,7 +2,6 @@ package com.projoker.joker_studio.controller;
 
 import com.projoker.joker_studio.dto.UserDto;
 import com.projoker.joker_studio.exception.ItemNotExistException;
-import com.projoker.joker_studio.model.Cart;
 import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.request.AddUserRequest;
 import com.projoker.joker_studio.request.UpdateUserRequest;
@@ -33,15 +32,25 @@ public class UserController {
         }
     }
 
-    @PostMapping("/verify")
-    public ResponseEntity<ApiResponse> verifyEmail(@RequestParam String email,@RequestParam String otp){
+    @PostMapping("/verify/email")
+    public ResponseEntity<ApiResponse> verifyEmail(@RequestParam String email,@RequestParam int otp){
         try {
-            User newUser=userService.verifyUser(email,otp);
-            cartService.createCart(newUser.getId());
-            UserDto userDto=modelMapper.map(newUser, UserDto.class);
-            return ResponseEntity.ok(new ApiResponse("User verified Successfully",userDto));
+            userService.verifyUserEmail(email,String.valueOf(otp));
+            return ResponseEntity.ok(new ApiResponse("User Email was Verified Successfully",null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Email verification Failed!",e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify/phone")
+    public ResponseEntity<ApiResponse> verifyPhone(@RequestParam Long phone,@RequestParam int otp){
+        try {
+            User newUser=userService.verifyUserPhone(phone,String.valueOf(otp));
+            cartService.createCart(newUser.getId());
+            UserDto userDto=modelMapper.map(newUser, UserDto.class);
+            return ResponseEntity.ok(new ApiResponse("User Phone was verified Successfully",userDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Phone verification Failed!",e.getMessage()));
         }
     }
 

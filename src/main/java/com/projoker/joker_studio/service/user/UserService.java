@@ -4,12 +4,15 @@ import com.projoker.joker_studio.exception.AlreadyExistException;
 import com.projoker.joker_studio.exception.ItemNotExistException;
 import com.projoker.joker_studio.exception.VerificationFailedException;
 import com.projoker.joker_studio.model.EmailVerification;
+import com.projoker.joker_studio.model.SmsVerification;
 import com.projoker.joker_studio.model.User;
 import com.projoker.joker_studio.repository.EmailVerificationRepository;
+import com.projoker.joker_studio.repository.SmsVerificationRepository;
 import com.projoker.joker_studio.repository.UserRepository;
 import com.projoker.joker_studio.request.AddUserRequest;
 import com.projoker.joker_studio.request.UpdateUserRequest;
 import com.projoker.joker_studio.service.notification.INotificationService;
+import com.projoker.joker_studio.service.notification.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,8 @@ public class UserService implements IUserService{
     private final UserRepository userRepository;
     private final INotificationService notificationService;
     private final EmailVerificationRepository emailVerificationRepository;
+    private final SmsVerificationRepository smsVerificationRepository;
+    private final SmsService smsService;
 
     @Override
     public void createUser(AddUserRequest user) {
@@ -36,7 +41,7 @@ public class UserService implements IUserService{
         newUser.setEmail(user.getEmail());
         newUser.setPhone(user.getPhone());
         newUser.setPassword(user.getPassword());
-
+        newUser.setPhoneVerification(true);
         newUser.setAddress(user.getAddress());
         //System.out.println(user.getAddress().getCity());
 
@@ -55,11 +60,23 @@ public class UserService implements IUserService{
         emailVerification.setVerified(false);
         emailVerificationRepository.save(emailVerification);
 
+
+        final int phonePassword=(100000 + random.nextInt(900000));
+
+        SmsVerification smsVerification=new SmsVerification();
+        smsVerification.setExpiryTime(LocalDateTime.now().plusMinutes(10));
+        smsVerification.setOtp(String.valueOf(phonePassword));
+        smsVerification.setPhone(user.getPhone());
+
+        //smsService.otpVerification(user.getPhone(),String.valueOf(phonePassword));
+        //smsVerification.setVerified(false);
+        //smsVerificationRepository.save(smsVerification);
+
         userRepository.save(newUser);
     }
 
     @Override
-    public User verifyUser(String email, String password){
+    public User verifyUserEmail(String email, String password){
         EmailVerification verify=emailVerificationRepository.findByEmail(email);
         if(password.isEmpty()){
             throw new VerificationFailedException("Kindly Ensure 6 digit OTP");
@@ -81,12 +98,41 @@ public class UserService implements IUserService{
     }
 
     @Override
+    public User verifyUserPhone(Long phone, String password) {
+        SmsVerification smsVerification=smsVerificationRepository.findByPhone(phone);
+        User user=userRepository.findByPhone(phone);
+        if(user==null || smsVerification==null){
+            throw new VerificationFailedException("Unknown phone number");
+        }
+        if(user.isPhoneVerification()){
+            throw new AlreadyExistException("Invalid phone number. Account already exists.");
+        }
+        if(password.isEmpty()){
+            throw new VerificationFailedException("Kindly Ensure 6 digit OTP");
+        }
+        if(!smsVerification.getOtp().equals(password)){
+            throw new VerificationFailedException("Invalid OTP!");
+        }
+        if(!smsVerification.getExpiryTime().isAfter(LocalDateTime.now())){
+            throw new VerificationFailedException("OTP expired.");
+        }
+        if(user.isPhoneVerification()){
+            throw new AlreadyExistException("User is already Verified by phone");
+        }
+        smsVerification.setVerified(true);
+        user.setPhoneVerification(true);
+        smsVerificationRepository.save(smsVerification);
+
+        return userRepository.save(user);
+    }
+
+    @Override
     public User updateUserDetails(Long userId, UpdateUserRequest user) {
         User existUser=userRepository.findByEmail(user.getEmail());
         if(existUser==null){
             throw new ItemNotExistException("User Not Exists!");
         }
-        if(!existUser.isEmailVerification()){
+        if(!existUser.isEmailVerification() || !existUser.isPhoneVerification()){
             throw new VerificationFailedException("User is not verified");
         }
         existUser.setFirstName(user.getFirstName());
@@ -106,7 +152,7 @@ public class UserService implements IUserService{
             throw new ItemNotExistException("User Not Exists: "+userId);
         }
 
-        if(!existUser.get().isEmailVerification()){
+        if(!existUser.get().isEmailVerification() || !existUser.get().isPhoneVerification()){
             throw new VerificationFailedException("User is not verified");
         }
 
@@ -130,10 +176,21 @@ public class UserService implements IUserService{
     @Override
     public User getUserByEmail(String email) {
         User user=userRepository.findByEmail(email);
-        if(!user.isEmailVerification()){
-            throw new VerificationFailedException("User is not verified");
+        if(!user.isEmailVerification() || !user.isPhoneVerification()){
+            throw new VerificationFailedException("User Email is not verified");
         }
         return user;
     }
+
+    @Override
+    public User getUserByPhone(Long phone){
+        User user=userRepository.findByPhone(phone);
+        if(!user.isEmailVerification() || !user.isPhoneVerification()){
+            throw new VerificationFailedException("User Phone is not Verified!");
+        }
+        return user;
+    }
+
+
 
 }
