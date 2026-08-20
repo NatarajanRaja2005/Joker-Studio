@@ -29,8 +29,7 @@ public class User {
     @ManyToMany(cascade =
             {CascadeType.DETACH,
                     CascadeType.MERGE,
-                    CascadeType.REFRESH,
-                    CascadeType.PERSIST},
+                    CascadeType.REFRESH},
     fetch = FetchType.EAGER)
     @JoinTable(name="user_Roles",joinColumns = @JoinColumn(name="user_Id",referencedColumnName = "id"),
            inverseJoinColumns = @JoinColumn(name="role_Id",referencedColumnName = "id"))
