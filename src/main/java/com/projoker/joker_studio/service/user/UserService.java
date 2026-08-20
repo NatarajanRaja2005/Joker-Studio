@@ -3,6 +3,7 @@ package com.projoker.joker_studio.service.user;
 import com.projoker.joker_studio.exception.AlreadyExistException;
 import com.projoker.joker_studio.exception.ItemNotExistException;
 import com.projoker.joker_studio.exception.VerificationFailedException;
+import com.projoker.joker_studio.model.Cart;
 import com.projoker.joker_studio.model.EmailVerification;
 import com.projoker.joker_studio.model.SmsVerification;
 import com.projoker.joker_studio.model.User;
@@ -11,9 +12,11 @@ import com.projoker.joker_studio.repository.SmsVerificationRepository;
 import com.projoker.joker_studio.repository.UserRepository;
 import com.projoker.joker_studio.request.AddUserRequest;
 import com.projoker.joker_studio.request.UpdateUserRequest;
+import com.projoker.joker_studio.service.cart.ICartService;
 import com.projoker.joker_studio.service.notification.INotificationService;
 import com.projoker.joker_studio.service.notification.SmsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -28,6 +31,8 @@ public class UserService implements IUserService{
     private final EmailVerificationRepository emailVerificationRepository;
     private final SmsVerificationRepository smsVerificationRepository;
     private final SmsService smsService;
+    private final ICartService cartService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void createUser(AddUserRequest user) {
@@ -40,9 +45,10 @@ public class UserService implements IUserService{
         newUser.setLastName(user.getLastName());
         newUser.setEmail(user.getEmail());
         newUser.setPhone(user.getPhone());
-        newUser.setPassword(user.getPassword());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setPhoneVerification(true);
         newUser.setAddress(user.getAddress());
+
         //System.out.println(user.getAddress().getCity());
 
 
@@ -51,7 +57,7 @@ public class UserService implements IUserService{
 
         EmailVerification emailVerification=new EmailVerification();
         emailVerification.setEmail(user.getEmail());
-        emailVerification.setOtp(String.valueOf(password));
+        emailVerification.setOtp(passwordEncoder.encode(String.valueOf(password)));
         //here is setting expiry time
         emailVerification.setExperiesAt(LocalDateTime.now().plusMinutes(10));
         emailVerification.setVerified(false);
@@ -73,6 +79,7 @@ public class UserService implements IUserService{
         //smsVerificationRepository.save(smsVerification);
 
         userRepository.save(newUser);
+        cartService.createCart(newUser.getId());
     }
 
     @Override
@@ -81,7 +88,7 @@ public class UserService implements IUserService{
         if(password.isEmpty()){
             throw new VerificationFailedException("Kindly Ensure 6 digit OTP");
         }
-        if(!verify.getOtp().equals(password)){
+        if(!passwordEncoder.matches(password,verify.getOtp())){
             throw new VerificationFailedException("Invalid OTP!");
         }
         if(!verify.getExperiesAt().isAfter(LocalDateTime.now())){
