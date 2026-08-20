@@ -99,6 +99,61 @@ Product ──1:N── Image
 
 ---
 
+## 📁 Project Structure
+
+```text
+src
+├── controller
+├── service
+│   └── impl
+├── repository
+├── model
+├── enums
+├── dto
+│   ├── request
+│   └── response
+├── security
+│   ├── config
+│   └── jwt
+├── exception
+├── config
+└── JokerStudioApplication.java
+```
+
+> Update this tree to match your actual package layout before pushing.
+
+---
+
+## 🗺️ System Architecture
+
+<p align="center">
+    <img src="docs/SystemArchitectureDiagram.png" width="900"/>
+</p>
+
+*(Add a simple architecture diagram to `/docs` — even a quick Excalidraw export works well here.)*
+
+---
+
+## 🗄️ Database Design
+
+**Main Entities:** User, Role, Cart, CartItem, Product, ProductType, Image, Event, Agenda, AgendaDetails, EventAccessories, Order, OrderDetails, OrderAddress, Portfolio, PortfolioMedia, EmailVerification, SmsVerification.
+
+<p align="center">
+    <img src="docs/ER-Diagram.png" width="900"/>
+</p>
+
+*(Export an ER diagram from MySQL Workbench or dbdiagram.io and save it as `docs/ER-Diagram.png` — avoid spaces in filenames, they can break GitHub's image rendering.)*
+
+---
+
+## 🔑 JWT Authentication Flow
+
+<p align="center">
+    <img src="docs/JwtFlowDiagram.png" width="900"/>
+</p>
+
+---
+
 ## 📂 Module Summary
 
 | Module | Responsibility |
@@ -159,6 +214,20 @@ A complete Postman collection covering all modules (User, Product, Cart, Orders,
 
 ---
 
+## 📖 API Documentation
+
+Interactive Swagger UI is available after startup:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+<p align="center">
+    <img src="docs/swagger-ui.png" width="900"/>
+</p>
+
+---
+
 ## 🗺️ Roadmap
 
 - [ ] Forgot password flow
@@ -178,3 +247,7 @@ Java Backend Developer | [LinkedIn](https://linkedin.com/in/natarajanraja2005) |
 ## 📄 License
 
 This project is built for a real client engagement. Code structure and architecture are shared here for portfolio purposes.
+
+---
+
+⭐ If you found this project useful, consider giving it a Star on GitHub.
