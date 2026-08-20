@@ -30,7 +30,9 @@ public class StudioConfig {
             "/apt/v1/cartItems/**",
             "/api/v1/user/add/**",
             "/api/v1/portfolio/get/**",
-            "/api/v1/user/verify/**");
+            "/api/v1/user/verify/**",
+            "/api/v1/agenda/get/**",
+            "/api/v1/accessories/get/**");
 
     @Bean
     public ModelMapper modelMapper(){
