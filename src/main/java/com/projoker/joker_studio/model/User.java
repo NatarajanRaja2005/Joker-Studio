@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.engine.internal.Cascade;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 @Entity
 @Getter
 @Setter
@@ -22,6 +25,17 @@ public class User {
     private boolean emailVerification;
     private boolean phoneVerification;
     private boolean deactivate;
+
+    @ManyToMany(cascade =
+            {CascadeType.DETACH,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.PERSIST},
+    fetch = FetchType.EAGER)
+    @JoinTable(name="user_Roles",joinColumns = @JoinColumn(name="user_Id",referencedColumnName = "id"),
+           inverseJoinColumns = @JoinColumn(name="role_Id",referencedColumnName = "id"))
+    private Collection<Role> roles=new HashSet<>();
+
     @Embedded
     private OrderAddress Address;
 
