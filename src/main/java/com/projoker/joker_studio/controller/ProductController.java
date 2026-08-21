@@ -11,6 +11,7 @@ import com.projoker.joker_studio.service.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class ProductController {
     private final IProductService productService;
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest request){
         try {
             Product product=productService.addProduct(request);
@@ -33,6 +35,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse>  removeProductById(@PathVariable Long productId){
         try {
             productService.removeProductById(productId);
@@ -44,6 +47,7 @@ public class ProductController {
 
 
     @PutMapping("/update/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody UpdateProductRequest request,@PathVariable Long productId){
         try {
             Product product=productService.updateProduct(request,productId);

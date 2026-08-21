@@ -30,7 +30,14 @@ public class StudioUserDetails implements UserDetails {
     public static StudioUserDetails createUser(User user){
         Collection<Role> roles=user.getRoles();
         List<GrantedAuthority> authorities=roles.stream()
-                .map(role->new SimpleGrantedAuthority(role.getName()))
+                .map(role-> {
+                            String roleName = role.getName();
+                            if (!roleName.startsWith("ROLE_")) {
+                              roleName = "ROLE_" + roleName;
+                            }
+                            return new SimpleGrantedAuthority(roleName);
+                        }
+                )
                 .collect(Collectors.toUnmodifiableList());
 
         return new StudioUserDetails(

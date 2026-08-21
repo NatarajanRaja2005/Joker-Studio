@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -29,17 +30,21 @@ public class StudioConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final StudioUserDetailsService userDetailsService;
-    private static final List<String> Secured_Url=List.of(
-            "/api/v1/carts/**",
+    private static final List<String> Public_Url=List.of(
             "/api/v1/products/get/**",
-            "/api/v1/cartItems/**",
             "/api/v1/user/add/**",
             "/api/v1/portfolio/get/**",
             "/api/v1/portfolio-media/**",
             "/api/v1/user/verify/**",
             "/api/v1/agenda/get/**",
             "/api/v1/accessories/get/**",
-            "/api/v1/auth/login/**");
+            "/api/v1/auth/login/**",
+            "/api/v1/user/forgot/**",
+            "/api/v1/user/change/**");
+    private static final List<String> authorizedUrls=List.of(
+            "/api/v1/event/admin/**",
+            "/api/v1/accessories/**"
+    );
 
     @Bean
     public ModelMapper modelMapper(){
@@ -68,7 +73,9 @@ public class StudioConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers(Secured_Url.toArray(String[] :: new)).permitAll()
+                        auth.requestMatchers(Public_Url.toArray(String[] :: new)).permitAll()
+                                .requestMatchers(authorizedUrls.toArray(String[] ::new)).hasRole("ADMIN")
+                                //.requestMatchers(HttpMethod.POST,"/api/v1/portfolio/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
                 .authenticationProvider(daoAuthenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -20,4 +20,6 @@ WHERE o.orderStatus = :status
 AND o.user.id = :userId
 """)
     List<Order> findByUserIdAndStatus(@Param("userId") Long userId,@Param("status") OrderStatus status);
+
+    List<Order> findByOrderStatus(OrderStatus orderStatus);
 }

@@ -10,6 +10,8 @@ import jdk.dynalink.linker.LinkerServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -23,7 +25,8 @@ import java.util.List;
 public class EventAccessoriesController {
     private final IEventAccessoriesService eventAccessoriesService;
 
-    @PostMapping("/create")
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> createAccessories(@RequestBody AddEventAccessoriesRequest request){
         HashMap<EventName, BigDecimal> prices=new HashMap<>();
         prices.put(EventName.WEDDING,request.getWedding());
@@ -37,7 +40,8 @@ public class EventAccessoriesController {
         }
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updateAccessories(@PathVariable Long id, @RequestBody AddEventAccessoriesRequest request){
         HashMap<EventName, BigDecimal> prices=new HashMap<>();
         prices.put(EventName.WEDDING,request.getWedding());
@@ -51,7 +55,8 @@ public class EventAccessoriesController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> removeAccessories(@PathVariable Long id){
         try {
             eventAccessoriesService.deleteEventAccessories(id);

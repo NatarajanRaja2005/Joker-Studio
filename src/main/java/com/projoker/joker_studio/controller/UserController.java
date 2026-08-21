@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -98,13 +99,34 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId){
         try {
             userService.deleteUser(userId);
             return ResponseEntity.ok(new ApiResponse("User Deleted Successfully.",null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("User deletion Failed",null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("User deletion Failed",e.getMessage()));
         }
     }
 
+    @PostMapping("/forgot/password")
+    public ResponseEntity<ApiResponse> forgotPassword(@RequestParam String email){
+        try {
+            userService.forgotPassword(email);
+            return ResponseEntity.ok(new ApiResponse("Otp sent to email Successfully.",null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Otp verification Failed",e.getMessage()));
+        }
+    }
+
+    @PostMapping("/change/password")
+    public ResponseEntity<ApiResponse> changingPassword(@RequestParam String email,@RequestParam String password){
+        try {
+            User user= userService.changingPassword(email, password);
+            UserDto userDto=modelMapper.map(user, UserDto.class);
+            return ResponseEntity.ok(new ApiResponse("Password changed successfully.",userDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Changing password Failed",e.getMessage()));
+        }
+    }
 }

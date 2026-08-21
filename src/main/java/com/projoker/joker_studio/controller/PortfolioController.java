@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,7 @@ public class PortfolioController {
     private final IPortfolio portfolioService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> createPortfolio(@RequestParam String eventName,
                                                        @RequestParam String description,
                                                        @RequestParam Long agendaId){
@@ -32,6 +34,7 @@ public class PortfolioController {
     }
 
     @PostMapping("/media/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> addMediaToPortfolio(@RequestParam Long portfolioId,
                                                            @RequestParam List<MultipartFile> files){
         try {
@@ -44,6 +47,7 @@ public class PortfolioController {
     }
 
     @PutMapping("/update/{portfolioId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updatePortfolio(@PathVariable Long portfolioId,
                                                        @RequestParam String eventName,
                                                        @RequestParam String description,
@@ -57,6 +61,7 @@ public class PortfolioController {
     }
 
     @PutMapping("/media/remove")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> removeMediaFromPortfolio(@RequestParam Long portfolioId,
                                                                 @RequestParam Long portfolioMediaId){
         try {
@@ -69,6 +74,7 @@ public class PortfolioController {
     }
 
     @DeleteMapping("/delete/{portfolioId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deletePortfolio(@PathVariable Long portfolioId){
         try {
             portfolioService.deletePortfolio(portfolioId);
@@ -102,6 +108,7 @@ public class PortfolioController {
     }
 
     @PutMapping("/media/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> updateMediaToPortfolio(@RequestParam Long portfolioId,
                                                               @RequestParam List<MultipartFile> files){
         try {

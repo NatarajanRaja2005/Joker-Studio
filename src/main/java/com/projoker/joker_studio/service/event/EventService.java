@@ -93,14 +93,18 @@ public class EventService implements IEventService{
     @Override
     public Event updateEvent(Long eventId, AddEventRequest request) {
         Event event=getEventByIdForAdmin(eventId);
+        EventStatus existingStatus=event.getEventStatus();
+        java.math.BigDecimal existingAdvance=event.getAdvance();
         event=settingEvent(request,event);
+        event.setEventStatus(existingStatus);
+        event.setAdvance(existingAdvance);
         notificationService.notify(event.getUser(),new NotifyMessage("Event updated Successfully.",eventMessage(event)+"\nThis event was updated successfully."));
         return eventRepository.save(event);
     }
 
     @Override
     public Event getEventByIdForUser(Long userId, Long eventId) {
-        Optional<Event> event=eventRepository.findByIdAndUserId(userId,eventId);
+        Optional<Event> event=eventRepository.findByIdAndUserId(eventId,userId);
         if(event.isEmpty()){
             throw new ItemNotExistException("Event not exists.");
         }
@@ -169,12 +173,12 @@ public class EventService implements IEventService{
 
     @Override
     public List<Event> getPendingEventsForAdmin() {
-        return eventRepository.findAllByEventStatus(EventStatus.BOOKED);
+        return eventRepository.findAllByEventStatus(EventStatus.NOT_BOOKED);
     }
 
     @Override
     public List<Event> getPendingEventsForUser(Long userId) {
-        return eventRepository.findAllByEventStatusAndUser_Id(EventStatus.BOOKED,userId);
+        return eventRepository.findAllByEventStatusAndUser_Id(EventStatus.NOT_BOOKED,userId);
     }
 
     @Override
