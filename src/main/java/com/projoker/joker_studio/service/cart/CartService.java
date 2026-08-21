@@ -13,6 +13,7 @@ import com.projoker.joker_studio.service.cart_item.ICartItemService;
 import com.projoker.joker_studio.service.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CartService implements ICartService{
     public final CartRepository cartRepository;
     public final ICartItemService cartItemService;
@@ -48,9 +50,7 @@ public class CartService implements ICartService{
 
     @Override
     public void removeItemFromCart(Long cartId, Long productId) {
-        Cart cart=getCartById(cartId);
-        CartItem item=cartItemService.getCartItemByProductIdAndCartId(productId,cartId);
-        cart.getItemList().remove(item);
+        cartItemService.deleteCartItemByProductId(productId, cartId);
         updatePriceOfCart(cartId);
     }
 

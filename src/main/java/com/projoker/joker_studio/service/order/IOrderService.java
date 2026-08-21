@@ -1,5 +1,6 @@
 package com.projoker.joker_studio.service.order;
 
+import com.projoker.joker_studio.dto.OrderDto;
 import com.projoker.joker_studio.model.Order;
 import com.projoker.joker_studio.model.OrderAddress;
 
@@ -16,4 +17,12 @@ public interface IOrderService {
     List<Order> getCompletedOrders(Long userId);
     void updateOrderStatus(Long orderId,String status);
     Order getOrderById(Long orderId);
+
+    List<Order> getAllCompletedOrders();
+
+    List<Order> getAllPendingOrder();
+
+    OrderDto orderDto(Order order);
+
+    List<OrderDto> orderDtoList(List<Order> list);
 }

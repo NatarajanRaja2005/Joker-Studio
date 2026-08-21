@@ -11,6 +11,7 @@ import com.projoker.joker_studio.service.product_type.IProductTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class ProductTypeController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> deleteProductTypeById(@PathVariable Long id){
         try {
             productTypeService.deleteProductTypeById(id);

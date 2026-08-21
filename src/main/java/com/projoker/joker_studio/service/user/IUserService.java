@@ -11,6 +11,8 @@ public interface IUserService {
 
     User verifyUserEmail(String email, String password);
 
+    User changingPassword(String email, String password);
+
     User updateUserDetails(Long userId, UpdateUserRequest user);
     User getUser(Long userId);
     void deleteUser(Long userId);
@@ -19,4 +21,6 @@ public interface IUserService {
     User getUserByPhone(Long phone);
 
     User verifyUserPhone(Long phone, String password);
+
+    void forgotPassword(String email);
 }

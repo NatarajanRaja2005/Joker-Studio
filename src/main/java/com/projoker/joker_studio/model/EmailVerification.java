@@ -21,6 +21,6 @@ public class EmailVerification {
     private Long id;
     private String email;
     private String otp;
-    private LocalDateTime experiesAt;
+    private LocalDateTime expiresAt;
     private boolean verified;
 }

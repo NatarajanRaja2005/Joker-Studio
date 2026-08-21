@@ -8,6 +8,7 @@ import com.projoker.joker_studio.service.event.IEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,6 +63,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/get/id/{eventId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getEventByIdForAdmin(@PathVariable Long eventId){
         try {
             Event event=eventService.getEventByIdForAdmin(eventId);
@@ -84,6 +86,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/get/by/date")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getEventsByDateForAdmin(@RequestParam String date){
         try {
             List<Event> events=eventService.getEventsByDateForAdmin(date);
@@ -106,6 +109,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/get/upcoming")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getUpComingEventsForAdmin(){
         try {
             List<Event> events=eventService.getUpComingEventsForAdmin();
@@ -128,6 +132,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/get/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getPendingEventsForAdmin(){
         try {
             List<Event> events=eventService.getPendingEventsForAdmin();
@@ -150,6 +155,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/get/booked")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getBookedEventsForAdmin(){
         try {
             List<Event> events=eventService.getBookedEventsForAdmin();
@@ -172,6 +178,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/get/cancelled")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> getCancelledEventsForAdmin(){
         try {
             List<Event> events=eventService.getCancelledEventsForAdmin();
@@ -195,6 +202,7 @@ public class EventController {
 
     //Only admin
     @PutMapping("/admin/status/{eventId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> changeEventStatus(@PathVariable Long eventId,@RequestParam String status){
         try {
             Event event=eventService.changeEventStatus(eventId,status);

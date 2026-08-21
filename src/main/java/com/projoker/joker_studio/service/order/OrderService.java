@@ -1,5 +1,7 @@
 package com.projoker.joker_studio.service.order;
 
+import com.projoker.joker_studio.dto.OrderDto;
+import com.projoker.joker_studio.dto.UserDto;
 import com.projoker.joker_studio.enums.OrderStatus;
 import com.projoker.joker_studio.exception.ItemNotExistException;
 import com.projoker.joker_studio.exception.OutOfStockException;
@@ -10,21 +12,24 @@ import com.projoker.joker_studio.service.cart.ICartService;
 import com.projoker.joker_studio.service.notification.INotificationService;
 import com.projoker.joker_studio.service.order_details.IOrderDetailService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderService implements IOrderService{
     private final OrderRepository orderRepository;
     public final ProductRepository productRepository;
     private final ICartService cartService;
     private final IOrderDetailService orderDetailService;
     private final INotificationService notificationService;
+    private final ModelMapper modelMapper;
 
     @Override
     public Order orderProductsInCart(Long cartId) {
@@ -64,14 +69,13 @@ public class OrderService implements IOrderService{
     @Override
     public void deleteOrder(Long orderId) {
         Order order=getOrderById(orderId);
+        Cart userCart=cartService.getCartByUserId(order.getUser().getId());
         for(OrderDetails od:order.getOrderDetails()) {
             Product product = productRepository.findById(od.getProduct().getId()).get();
             product.setInventory(product.getInventory()+od.getQuantity());
             //Here recreating cart for deleting order
-            cartService.addItemsToCart(order.getUser().getId(),product.getId(),od.getQuantity());
+            cartService.addItemsToCart(userCart.getId(),product.getId(),od.getQuantity());
         }
-        notificationService.notify(order.getUser(),new NotifyMessage("Order was deleted Successfully.",orderMessage(order)+"\n\nOrder deleted Successfully"));
-        orderRepository.delete(order);
     }
 
     @Override
@@ -133,6 +137,36 @@ public class OrderService implements IOrderService{
         return order.get();
     }
 
+    @Override
+    public List<Order> getAllCompletedOrders() {
+        return orderRepository.findByOrderStatus(OrderStatus.COMPLETED);
+    }
+
+    @Override
+    public List<Order> getAllPendingOrder() {
+        return orderRepository.findByOrderStatus(OrderStatus.PENDING);
+    }
+
+    @Override
+    public OrderDto orderDto(Order order){
+        OrderDto orderDto=new OrderDto();
+        orderDto.setId(order.getId());
+        UserDto userDto=modelMapper.map(order.getUser(), UserDto.class);
+        orderDto.setUserDto(userDto);
+        orderDto.setOrderAmount(order.getOrderAmount());
+        orderDto.setOrderStatus(order.getOrderStatus());
+        orderDto.setInstruction(order.getInstruction());
+        orderDto.setOrderDateTime(order.getOrderDateTime());
+        orderDto.setOrderAddress(order.getOrderAddress());
+        orderDto.setOrderDetails(order.getOrderDetails());
+
+        return orderDto;
+    }
+
+    @Override
+    public List<OrderDto> orderDtoList(List<Order> list){
+        return list.stream().map(this::orderDto).toList();
+    }
     private String orderMessage(Order order) {
 
         StringBuilder message = new StringBuilder();

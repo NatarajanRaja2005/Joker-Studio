@@ -78,7 +78,7 @@ public class CartItemService implements ICartItemService{
             throw new ItemNotExistException("Product not exists");
         }
         Optional<Cart> cart=cartRepository.findById(cartId);
-        if(cart==null){
+        if(cart.isEmpty()){
             throw new ItemNotExistException("Cart not exists");
         }
         CartItem item=cartItemRepository.findByCartAndProduct(cart.get(),product);

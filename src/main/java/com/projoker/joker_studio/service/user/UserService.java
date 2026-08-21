@@ -3,10 +3,7 @@ package com.projoker.joker_studio.service.user;
 import com.projoker.joker_studio.exception.AlreadyExistException;
 import com.projoker.joker_studio.exception.ItemNotExistException;
 import com.projoker.joker_studio.exception.VerificationFailedException;
-import com.projoker.joker_studio.model.Cart;
-import com.projoker.joker_studio.model.EmailVerification;
-import com.projoker.joker_studio.model.SmsVerification;
-import com.projoker.joker_studio.model.User;
+import com.projoker.joker_studio.model.*;
 import com.projoker.joker_studio.repository.EmailVerificationRepository;
 import com.projoker.joker_studio.repository.SmsVerificationRepository;
 import com.projoker.joker_studio.repository.UserRepository;
@@ -59,7 +56,7 @@ public class UserService implements IUserService{
         emailVerification.setEmail(user.getEmail());
         emailVerification.setOtp(passwordEncoder.encode(String.valueOf(password)));
         //here is setting expiry time
-        emailVerification.setExperiesAt(LocalDateTime.now().plusMinutes(10));
+        emailVerification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
         emailVerification.setVerified(false);
 
         notificationService.optVerification(user.getEmail(), String.valueOf(password));
@@ -84,14 +81,14 @@ public class UserService implements IUserService{
 
     @Override
     public User verifyUserEmail(String email, String password){
-        EmailVerification verify=emailVerificationRepository.findByEmail(email);
+        EmailVerification verify=emailVerificationRepository.findTopByEmailOrderByExpiresAtDesc(email);
         if(password.isEmpty()){
             throw new VerificationFailedException("Kindly Ensure 6 digit OTP");
         }
         if(!passwordEncoder.matches(password,verify.getOtp())){
             throw new VerificationFailedException("Invalid OTP!");
         }
-        if(!verify.getExperiesAt().isAfter(LocalDateTime.now())){
+        if(!verify.getExpiresAt().isAfter(LocalDateTime.now())){
             throw new VerificationFailedException("Otp expired.");
         }
         if(verify.isVerified()){
@@ -130,6 +127,33 @@ public class UserService implements IUserService{
         user.setPhoneVerification(true);
         smsVerificationRepository.save(smsVerification);
 
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        User user=userRepository.findByEmail(email);
+        EmailVerification emailVerification=new EmailVerification();
+        emailVerification.setVerified(false);
+        emailVerification.setEmail(email);
+        SecureRandom random=new SecureRandom();
+        final int pass=(100000+random.nextInt(900000));
+        emailVerification.setOtp(passwordEncoder.encode(String.valueOf(pass)));
+        emailVerification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+
+        user.setEmailVerification(false);
+        userRepository.save(user);
+        emailVerificationRepository.save(emailVerification);
+        notificationService.optVerification(email,"Joker Studio:For Resetting Password OTP is: "+pass);
+    }
+
+    @Override
+    public User changingPassword(String email, String password){
+        User user=userRepository.findByEmail(email);
+        if(!user.isEmailVerification()){
+            throw new VerificationFailedException("Not an verified user!");
+        }
+        user.setPassword(passwordEncoder.encode(password));
         return userRepository.save(user);
     }
 
@@ -183,7 +207,7 @@ public class UserService implements IUserService{
     @Override
     public User getUserByEmail(String email) {
         User user=userRepository.findByEmail(email);
-        if(!user.isEmailVerification() || !user.isPhoneVerification()){
+        if(!user.isEmailVerification()){
             throw new VerificationFailedException("User Email is not verified");
         }
         return user;
@@ -197,7 +221,5 @@ public class UserService implements IUserService{
         }
         return user;
     }
-
-
 
 }

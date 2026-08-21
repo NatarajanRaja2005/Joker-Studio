@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,8 @@ import java.util.List;
 @Component
 public class JwtUtil {
 
-    private final String secret="a7Kp9Xv2LmQ8rT5yN3wZ6cB1sF4hJ0dE";
+    @Value("${jwt.secret}")
+    private String secret;
     private final long expiry=1000*60*60;
 
     public String generateToken(Authentication authentication){
