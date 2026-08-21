@@ -1,4 +1,4 @@
-# 📸 STUPHY — The Studio Photography
+# 📸 STUPHY — The Modern Photography
 
 **Event Booking, E-Commerce & Portfolio Platform — Backend REST API**
 
